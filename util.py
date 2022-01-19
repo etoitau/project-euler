@@ -12,6 +12,17 @@ def lcm(a: int, b: int) -> int:
     """Least common multiple"""
     return abs(a * b) // gcd(a, b)
 
+def triangles(n, known: List[int]=[ 0, 1 ]) -> List[int]:
+    if n <= len(known) - 1:
+        return known
+    count = len(known) - 1
+    value = known[count]
+    while count < n:
+        count += 1
+        value += count
+        known.append(value)
+    return known
+
 def prime_sieve(n: int, primes: List[int]=[]) -> List[int]:
     """Get list of all primes less than or equal to n using Sieve of Eratosthenes
     Can optionally provide already calculated primes. 
@@ -94,4 +105,4 @@ def triangle_number(nth: int) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    # print(nth_prime(6))
+    print(triangles(10, [0, 1, 3, 6, 10, 15, 21]))
