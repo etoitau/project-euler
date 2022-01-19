@@ -15,7 +15,7 @@ def lcm(a: int, b: int) -> int:
 def prime_sieve(n: int, primes: List[int]=[]) -> List[int]:
     """Get list of all primes less than or equal to n using Sieve of Eratosthenes
     Can optionally provide already calculated primes. 
-    These should not be misisng any in their range
+    These should not be missing any in their range
     """
     sieve_start = 2
     is_prime = [True for i in range(n + 1)]
