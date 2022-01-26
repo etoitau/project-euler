@@ -1,6 +1,22 @@
 import math
-from typing import Dict, Set, List
+from typing import Dict, Set, List, Tuple
 from functools import reduce
+
+class Node:
+    def __init__(self, value) -> None:
+        self.value = value
+        self.children: List['Node'] = []
+
+    def __str__(self) -> str:
+        return str(self.value)
+    
+    def __repr__(self) -> str:
+        return repr(self.value)
+
+    def report(self) -> str:
+        return (str(self.value) + "->[" 
+            + ", ".join([ str(c.value) for c in self.children ]) 
+            + "]")
 
 def gcd(a: int, b: int) -> int:
     """Greatest common denominator by Euler method"""
