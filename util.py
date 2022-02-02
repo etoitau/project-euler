@@ -84,25 +84,29 @@ def nth_prime(n) -> int:
     return primes[n - 1]
 
 
-def prime_factors(n: int) -> Dict[int, int]:
+def prime_factors(n: int, known_primes: Set[int]=None) -> Dict[int, int]:
     """Get the prime factorization of the input. The result takes the form 
     of a dict where the keys are the primes and the values are how many times
     that prime occurs in the factorization.
     """
+    if not known_primes:
+        known_primes = set([1])
     factors = dict([(1, 1)])
-    primes_helper(n, factors)
+    primes_helper(n, factors, known_primes)
     return factors
 
-def primes_helper(n, factors: Dict[int, int]) -> None:
+def primes_helper(n, factors: Dict[int, int], known_primes: Set[int]) -> None:
     """Recursive helper to do factorization by the tree method"""
     if n in factors:
         factors[n] += 1
         return
+    elif n in known_primes:
+        factors[n] = 1
     d = math.floor(math.sqrt(n))
     while d > 1:
         if not n % d:
-            primes_helper(d, factors)
-            primes_helper(int(n / d), factors)
+            primes_helper(d, factors, known_primes)
+            primes_helper(int(n / d), factors, known_primes)
             return
         d -= 1
     factors[n] = 1
@@ -116,9 +120,99 @@ def recombine(factors: Dict[int, int]) -> int:
         result *= int(math.pow(f, factors[f]))
     return result
 
+def factors_to_divisors(factors: Dict[int, int]) -> List[int]:
+    """Given a factorization of a number, n, of the form provided by prime_factors,
+    return a list of all proper divisors of n by evaluating every possible factor product
+    """
+    ret = [ 1 ]
+    # just primes without exponents, and leave out 1
+    factor_list = list(filter(lambda a: a != 1, list(factors)))
+    n_factors = len(factor_list)
+    if not n_factors:
+        return []
+    current_exp = [0] * n_factors
+    def one_prod() -> int:
+        return reduce(
+            lambda a, b: a * b, 
+            [ factor_list[i] ** current_exp[i] for i in range(n_factors) ], 
+            1)
+    # itterate over all possible cominations of exponents
+    while True:
+        # inc first exp
+        curr_digit = 0
+        current_exp[curr_digit] += 1
+        # do carrys as needed
+        while current_exp[curr_digit] > factors[factor_list[curr_digit]]:
+            current_exp[curr_digit] = 0
+            curr_digit += 1
+            # if we're trying to inc beyond max, then we're done
+            if curr_digit == n_factors:
+                # for proper divisors, leave off the last one, which was n
+                return ret[:-1]
+            current_exp[curr_digit] += 1
+        # get this divisor
+        ret.append(one_prod())
+
 def triangle_number(nth: int) -> int:
     return nth * (nth + 1) // 2
 
+def radix_sort(to_sort: List[List[int]], as_number=True) -> None:
+    """Sort to_sort in place
+    if as_number is True, [4] will come before [1, 2] (i.e. 4 is less than 12)
+    if as_number is False, sort like alphabetical (i.e. "12" is less than "4")
+    """
+    max_len = max(len(data) for data in to_sort)
+    if as_number:
+        for i in range(max_len):
+            # sort digit by digit starting at last digit of each entry
+            radix_helper(to_sort, (i + 1) * -1)
+    else:
+        for i in range(max_len):
+            # sort digit by digit starting from last digit of longest entry
+            radix_helper(to_sort, max_len - 1 - i)
+
+def radix_helper(to_sort: List[List[int]], index: int) -> None:
+    # Do counting sort on data sorting on the data in index
+    
+    # want min value to correspond to index 1 in our count array, 
+    # with index 0 used by no value
+    min_value = float('inf')
+    max_value = float('-inf')
+    for data in to_sort:
+        try:
+            max_value = max(max_value, data[index])
+            min_value = min(min_value, data[index])
+        except IndexError:
+            pass
+    offset = int(0 - min_value + 1)
+    # Collect frequency of each value
+    frequency = [0] * (2 + int(max_value - min_value))
+    for data in to_sort:
+        try:
+            frequency[data[index] + offset] += 1
+        except IndexError:
+            frequency[0] += 1
+    # Accumulate
+    for i in range(1, len(frequency)):
+        frequency[i] += frequency[i - 1]
+    # Offset by 1 so value at frequency[value + offset] tells 
+    # where value should go in sorted array
+    frequency = [0] + frequency
+    # Get a temporary list to hold result since we can't modify 
+    # source while itterating over it
+    sorted_data = [ data for data in to_sort ]
+    for data in to_sort:
+        try:
+            freq_index = data[index] + offset
+        except IndexError:
+            freq_index = 0
+        dest = frequency[freq_index]
+        frequency[freq_index] += 1
+        sorted_data[dest] = data
+    # Copy result back into source
+    for i in range(len(to_sort)):
+        to_sort[i] = sorted_data[i]
+
 if __name__ == '__main__':
     """starts here"""
-    print(triangles(10, [0, 1, 3, 6, 10, 15, 21]))
+    
