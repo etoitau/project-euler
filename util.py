@@ -213,6 +213,50 @@ def radix_helper(to_sort: List[List[int]], index: int) -> None:
     for i in range(len(to_sort)):
         to_sort[i] = sorted_data[i]
 
+def is_sum_of_two_from(n: int, numbers: List[int]) -> bool:
+    """Can n be expressed as a sum of two numbers from numbers?
+    Note allows one number to be used twice
+    """
+    # find number closest to n / 2 by binary search, then scan outward
+    high = binary_search_fuzzy(n / 2, numbers)
+    low = high
+    limit = len(numbers)
+    while low > -1 and high < limit:
+        guess = numbers[low] + numbers[high]
+        if guess > n:
+            low -= 1
+        elif guess < n:
+            high += 1
+        else:
+            return True
+    return False
+
+def binary_search(target, search_in: List) -> int:
+    """If target is in search_in, return its index
+    if target is not in search_in, say the index where it would be is i, 
+    we return -(i + 1)
+    """
+    low = 0
+    high = len(search_in)
+    while low < high:
+        mid = (low + high) // 2
+        value = search_in[mid]
+        if value > target:
+            high = mid
+        elif value < target:
+            low = mid + 1
+        else:
+            return mid
+    return -1 * (low + 1)
+
+def binary_search_fuzzy(target, search_in) -> int:
+    """Find index of target in search_in, or index where it would be."""
+    i = binary_search(target, search_in)
+    return -(i + 1) if i < 0 else i
+
 if __name__ == '__main__':
     """starts here"""
+    data = [3, 7, 8, 9, 20]
+    n = 28
+    print(is_sum_of_two_from(n, data))
     
