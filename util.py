@@ -1,5 +1,5 @@
 import math
-from typing import Dict, Set, List, Tuple
+from typing import Dict, Generator, Set, List, Tuple
 from functools import reduce
 
 class Node:
@@ -254,9 +254,39 @@ def binary_search_fuzzy(target, search_in) -> int:
     i = binary_search(target, search_in)
     return -(i + 1) if i < 0 else i
 
+def lexilogical_permutation_generator(characters: str) -> Generator:
+    """Given a string of unique characters, returns a gereator which will yield
+    each permutation of the characters in lexilogical order.
+    """
+    as_list = [c for c in characters]
+    as_list.sort()
+    yield "".join(as_list)
+    length = len(as_list)
+    while True:
+        # scan to find first where left is smaller than right
+        i = length - 2
+        while i > -1 and as_list[i] > as_list[i + 1]:
+            i -= 1
+        if i == -1:
+            return
+        # swap it with the next largest from the right
+        swap_with = i + 1
+        for j in range(i + 2, length):
+            if as_list[swap_with] > as_list[j] > as_list[i]:
+                swap_with = j
+        as_list[i], as_list[swap_with] = as_list[swap_with], as_list[i]
+        # reverse the part to the right
+        as_list[i + 1:] = reversed(as_list[i + 1:])
+        yield "".join(as_list)
+
+
 if __name__ == '__main__':
     """starts here"""
     data = [3, 7, 8, 9, 20]
     n = 28
-    print(is_sum_of_two_from(n, data))
-    
+    itt = lexilogical_permutation_generator("cbad")
+    for l in itt:
+        print(l)
+    # print([ lex for lex in itt])
+    # data[2:] = reversed(data[2:])
+    # print(data)
