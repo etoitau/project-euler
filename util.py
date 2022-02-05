@@ -279,14 +279,35 @@ def lexilogical_permutation_generator(characters: str) -> Generator:
         as_list[i + 1:] = reversed(as_list[i + 1:])
         yield "".join(as_list)
 
+def lexographic_permutation(characters: str, n: int) -> str:
+    """ Get the nth lexographic permutation of characters"""
+    chars = [ c for c in characters ]
+    chars.sort()
+    fact = to_factoradic_array(n)
+    indices = [0] * (len(characters) - len(fact))
+    indices.extend(fact)
+    res = ""
+    for i in range(len(indices)):
+        res += chars[indices[i]]
+        del chars[indices[i]]
+    return res
+
+def to_factoradic_array(n: int) -> List[int]:
+    """ Convert number to factoradic base. 
+    Returns as array of ints where the place value of each 
+    int in the array is (length - i - 1)!
+    """
+    res = [ 0 ]
+    f = 2
+    while n > 0:
+        res.append(n % f)
+        n //= f
+        f += 1
+    res.reverse()
+    return res
 
 if __name__ == '__main__':
     """starts here"""
-    data = [3, 7, 8, 9, 20]
-    n = 28
-    itt = lexilogical_permutation_generator("cbad")
-    for l in itt:
-        print(l)
-    # print([ lex for lex in itt])
-    # data[2:] = reversed(data[2:])
-    # print(data)
+    n = 5
+    s = "abcd"
+    print(lexographic_permutation(s, n))
