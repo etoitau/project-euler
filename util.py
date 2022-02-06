@@ -306,8 +306,24 @@ def to_factoradic_array(n: int) -> List[int]:
     res.reverse()
     return res
 
+def fibonacci_generator() -> Generator:
+    """ Generator yiedling elements of the Fibonacci sequence
+    starting with 0
+    """
+    a = 0
+    b = 1
+    yield a
+    yield b
+    while True:
+        a += b
+        yield a
+        b += a
+        yield b
+
 if __name__ == '__main__':
     """starts here"""
-    n = 5
-    s = "abcd"
-    print(lexographic_permutation(s, n))
+    count = 0
+    gen = fibonacci_generator()
+    while count < 12:
+        print(next(gen))
+        count += 1
