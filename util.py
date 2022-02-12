@@ -18,6 +18,48 @@ class Node:
             + ", ".join([ str(c.value) for c in self.children ]) 
             + "]")
 
+class PrimeMachine:
+    def __init__(self, initial_max=2048) -> None:
+        self.up_to = initial_max
+        self.prime_list = prime_sieve(initial_max)
+        self.prime_set = set(self.prime_list)
+
+    def __iter__(self):
+        return PrimeIterator(self)
+
+    def get(self, nth: int) -> int:
+        try:
+            return self.prime_list[nth]
+        except IndexError:
+            self._get_more()
+            self.get(nth)
+    
+    def _get_more(self) -> None:
+        i = len(self.prime_list)
+        self.up_to <<= 1
+        self.prime_list = prime_sieve(self.up_to, self.prime_list)
+        self.prime_set.update(self.prime_list[i:])
+
+    def is_prime(self, n: int) -> bool:
+        if n > self.up_to:
+            self._get_more()
+            return self.is_prime(n)
+        return n in self.prime_set
+
+
+class PrimeIterator:
+    def __init__(self, prime_machine=None):
+        if prime_machine:
+            self.machine = prime_machine
+        else:
+            self.machine = PrimeMachine()
+        self.index = -1
+    
+    def __next__(self):
+        self.index += 1
+        return self.machine.get(self.index)
+    
+
 def gcd(a: int, b: int) -> int:
     """Greatest common denominator by Euler method"""
     while b:
@@ -307,7 +349,7 @@ def to_factoradic_array(n: int) -> List[int]:
     return res
 
 def fibonacci_generator() -> Generator:
-    """ Generator yiedling elements of the Fibonacci sequence
+    """ Generator yielding elements of the Fibonacci sequence
     starting with 0
     """
     a = 0
@@ -322,8 +364,8 @@ def fibonacci_generator() -> Generator:
 
 if __name__ == '__main__':
     """starts here"""
-    count = 0
-    gen = fibonacci_generator()
-    while count < 12:
-        print(next(gen))
-        count += 1
+    
+    m = PrimeMachine()
+    check = [1, 20, 31, 55, 101, 10000]
+    for n in check:
+        print(m.is_prime(n))
