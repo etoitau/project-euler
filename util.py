@@ -178,7 +178,7 @@ def factors_to_divisors(factors: Dict[int, int]) -> List[int]:
             lambda a, b: a * b, 
             [ factor_list[i] ** current_exp[i] for i in range(n_factors) ], 
             1)
-    # itterate over all possible cominations of exponents
+    # iterate over all possible combinations of exponents
     while True:
         # inc first exp
         curr_digit = 0
@@ -241,7 +241,7 @@ def radix_helper(to_sort: List[List[int]], index: int) -> None:
     # where value should go in sorted array
     frequency = [0] + frequency
     # Get a temporary list to hold result since we can't modify 
-    # source while itterating over it
+    # source while iterating over it
     sorted_data = [ data for data in to_sort ]
     for data in to_sort:
         try:
@@ -297,7 +297,7 @@ def binary_search_fuzzy(target, search_in) -> int:
     return -(i + 1) if i < 0 else i
 
 def lexilogical_permutation_generator(characters: str) -> Generator:
-    """Given a string of unique characters, returns a gereator which will yield
+    """Given a string of unique characters, returns a generator which will yield
     each permutation of the characters in lexilogical order.
     """
     as_list = [c for c in characters]
@@ -362,10 +362,39 @@ def fibonacci_generator() -> Generator:
         b += a
         yield b
 
+def combinations_in_order(elements: List, n: int) -> Generator:
+    # Return every combination of n elements from elements
+    # including repeat elements and return in sorted order.
+    n_elements = len(elements)
+    # Keeps track of which element from elements is in which 
+    # position via its index in elements
+    current_i = [ 0 ] * n
+    # Helper to convert back into given elements
+    def to_values():
+        return [ elements[i] for i in current_i ]
+    yield to_values()
+    while True:
+        # Increment first digit
+        i = 0
+        current_i[i] += 1
+        # Do carries as necessary
+        while current_i[i] == n_elements and i < n_elements:
+            i += 1
+            try:
+                current_i[i] += 1
+            except IndexError:
+                # Means we've reached the end
+                return
+        # [0, 1] == [1, 0] for combinations, 
+        # so next after [1, 0] is [1, 1]
+        v = current_i[i]
+        for j in range(i):
+            current_i[j] = v
+        yield to_values()
+
 if __name__ == '__main__':
     """starts here"""
     
-    m = PrimeMachine()
-    check = [1, 20, 31, 55, 101, 10000]
-    for n in check:
-        print(m.is_prime(n))
+    elements = [ 0, 1, 2 ]
+    for c in combinations_in_order(elements, 3):
+        print(c)
