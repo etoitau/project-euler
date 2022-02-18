@@ -392,9 +392,35 @@ def combinations_in_order(elements: List, n: int) -> Generator:
             current_i[j] = v
         yield to_values()
 
+def permute(input: List) -> Generator:
+    # Gererate all permutations of the elements in input
+    # using Heap's Algorithm
+    # Note these will not be in lexiographic order
+    return heap_help(len(input), input)
+
+def heap_help(k: int, input: List) -> Generator:
+    if k == 1:
+        yield input
+    else:
+        yield from heap_help(k - 1, input)
+        for i in range(k - 1):
+            swap = 0 if k % 2 else i
+            input[swap], input[k - 1] = input[k - 1], input[swap]
+            yield from heap_help(k - 1, input)
+
+def int_array_to_int(ints: List[int]) -> int:
+    return int("".join([str(d) for d in ints]))
+
+def int_array_to_int2(ints: List[int]) -> int:
+    result = 0
+    radix = 1
+    for i in range(-1, -1 * len(ints) - 1, -1):
+        result += ints[i] * radix
+        radix *= 10
+    return result
+
 if __name__ == '__main__':
     """starts here"""
     
-    elements = [ 0, 1, 2 ]
-    for c in combinations_in_order(elements, 3):
-        print(c)
+    elements = [ 1, 2, 3 ]
+    print(int_array_to_int(elements))
