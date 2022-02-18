@@ -59,6 +59,9 @@ class PrimeIterator:
         self.index += 1
         return self.machine.get(self.index)
     
+def simplify_fraction(n: int, d: int) -> Tuple[int, int]:
+    r = gcd(n, d)
+    return n // r, d // r
 
 def gcd(a: int, b: int) -> int:
     """Greatest common denominator by Euler method"""
@@ -422,5 +425,4 @@ def int_array_to_int2(ints: List[int]) -> int:
 if __name__ == '__main__':
     """starts here"""
     
-    elements = [ 1, 2, 3 ]
-    print(int_array_to_int(elements))
+    print(simplify_fraction(12, 16))
