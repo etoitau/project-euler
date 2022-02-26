@@ -33,7 +33,7 @@ class PrimeMachine:
             return self.prime_list[nth]
         except IndexError:
             self._get_more()
-            self.get(nth)
+            return self.get(nth)
     
     def _get_more(self) -> None:
         i = len(self.prime_list)
@@ -443,11 +443,21 @@ def factorials(n: int) -> List[int]:
         facts[i] = facts[i - 1] * i
     return facts
 
+def rotate(a: List) -> List:
+    """ Rotate all elements one to the right in place """
+    temp = a[-1]
+    for i in range(len(a) - 1, -1, -1):
+        a[i] = a[i - 1]
+    a[0] = temp
+    return a
+
+def rotations(a: List) -> Generator:
+    yield a
+    for i in range(len(a) - 1):
+        yield rotate(a)
+
 if __name__ == '__main__':
     """starts here"""
-    m = 1000000
-    n = 100000000
-    start = time.time()
-    for t in range(m, n):
-        one = int_to_int_array(t)
-    print(time.time() - start)
+    n = [ 0 ]
+    for r in rotations(n):
+        print(r)
