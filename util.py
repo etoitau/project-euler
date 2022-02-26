@@ -1,6 +1,7 @@
 import math
 from typing import Dict, Generator, Set, List, Tuple
 from functools import reduce
+import time
 
 class Node:
     def __init__(self, value) -> None:
@@ -366,8 +367,9 @@ def fibonacci_generator() -> Generator:
         yield b
 
 def combinations_in_order(elements: List, n: int) -> Generator:
-    # Return every combination of n elements from elements
-    # including repeat elements and return in sorted order.
+    """ Return every combination of n elements from elements
+    including repeat elements and return in sorted order.
+    """
     n_elements = len(elements)
     # Keeps track of which element from elements is in which 
     # position via its index in elements
@@ -396,9 +398,10 @@ def combinations_in_order(elements: List, n: int) -> Generator:
         yield to_values()
 
 def permute(input: List) -> Generator:
-    # Gererate all permutations of the elements in input
-    # using Heap's Algorithm
-    # Note these will not be in lexiographic order
+    """ Gererate all permutations of the elements in input
+    using Heap's Algorithm
+    Note these will not be in lexiographic order
+    """
     return heap_help(len(input), input)
 
 def heap_help(k: int, input: List) -> Generator:
@@ -422,7 +425,29 @@ def int_array_to_int2(ints: List[int]) -> int:
         radix *= 10
     return result
 
+def int_to_int_array(n: int) -> List[int]:
+    result = [ n % 10 ]
+    n //= 10
+    while n > 0:
+        r = n % 10
+        result.append(r)
+        n //= 10
+    result.reverse()
+    return result
+
+def factorials(n: int) -> List[int]:
+    """ Return an array where the ith element is i! """
+    facts = [0] * (n + 1)
+    facts[0] = 1
+    for i in range(1, len(facts)):
+        facts[i] = facts[i - 1] * i
+    return facts
+
 if __name__ == '__main__':
     """starts here"""
-    
-    print(simplify_fraction(12, 16))
+    m = 1000000
+    n = 100000000
+    start = time.time()
+    for t in range(m, n):
+        one = int_to_int_array(t)
+    print(time.time() - start)
