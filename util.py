@@ -415,9 +415,17 @@ def heap_help(k: int, input: List) -> Generator:
             yield from heap_help(k - 1, input)
 
 def int_array_to_int(ints: List[int]) -> int:
+    """ Convert an array of ints represening digits of 
+    a number(should be single-digit)
+    to that number by concatinating.
+    """
     return int("".join([str(d) for d in ints]))
 
 def int_array_to_int2(ints: List[int]) -> int:
+    """ Convert an array of ints represening digits of 
+    a number(should be single-digit)
+    to that number by summing values.
+    """
     result = 0
     radix = 1
     for i in range(-1, -1 * len(ints) - 1, -1):
@@ -426,12 +434,20 @@ def int_array_to_int2(ints: List[int]) -> int:
     return result
 
 def int_to_int_array(n: int) -> List[int]:
-    result = [ n % 10 ]
-    n //= 10
+    """ Convert an int into an array of the ints at each digit """
+    return to_array_base(n, 10)
+
+def to_array_base(n: int, r: int) -> List[int]:
+    """ Convert an int into an array of the ints at each digit
+    where the radix for the output is given by r.
+    e.g. to_array_base(6, 2) converts 6 to it's binary array 
+    representation: [1, 1, 0]
+    """
+    result = [ n % r ]
+    n //= r
     while n > 0:
-        r = n % 10
-        result.append(r)
-        n //= 10
+        result.append(n % r)
+        n //= r
     result.reverse()
     return result
 
@@ -452,12 +468,61 @@ def rotate(a: List) -> List:
     return a
 
 def rotations(a: List) -> Generator:
+    """ Yield all rotations of the givin array where each is 
+    rotated once more to the right 
+    """
     yield a
     for i in range(len(a) - 1):
         yield rotate(a)
 
+def is_palindrome(a: List) -> bool:
+    """ Check if the elements in a list are palindromic """
+    size = len(a)
+    if size == 1:
+        return True
+    is_pal = True
+    for i in range(size // 2):
+        if not a[i] == a[size - 1 - i]:
+            is_pal = False
+            break
+    return is_pal
+
+def get_palindromes(max_digits: int) -> Generator:
+    """ Yield all base 10 numbers which are palindromes in order """
+    if max_digits < 1:
+        return
+    # first the trivial single-digits
+    for n in range(10):
+        yield n
+    # We'll effectively be incrementing the first half of the 
+    # palindrome and just reversig it for the second half
+    # We do this one digit size at a time to return them in order
+    half_size = 1 # how many digits in half the palindrome
+    s = 1 # which means a range from s to e exclusive
+    e = 10
+    # the odd number digit palindromes are more efficient
+    # to calculate along with the even, but save them in a fifo 
+    # queue for later so we return in order
+    q = [] 
+    while True:
+        if (2 * half_size) > max_digits:
+            return
+        for n in range(s, e):
+            first_part = int_to_int_array(n)
+            last_part = [ r for r in reversed(first_part) ]
+            yield int_array_to_int(first_part + last_part)
+            if (2 * half_size + 1) <= max_digits:
+                for m in range(10):
+                    q.append(int_array_to_int(first_part + [m] + last_part))
+        for n in q:
+            yield n
+        # initilize for next loop
+        half_size += 1
+        s *= 10
+        e *= 10
+        q = []
+
 if __name__ == '__main__':
     """starts here"""
-    n = [ 0 ]
-    for r in rotations(n):
-        print(r)
+    for num in get_palindromes(4):
+        print(num)
