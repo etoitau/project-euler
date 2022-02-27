@@ -397,6 +397,40 @@ def combinations_in_order(elements: List, n: int) -> Generator:
             current_i[j] = v
         yield to_values()
 
+def binary_array_count(size: int) -> Generator[List[int], None, None]:
+    """ Yield a series of arrays of given size representing
+    successive binary numbers
+    """
+    current = [0] * size
+    yield current
+    while True:
+        # increment last digit
+        i = -1
+        current[i] += 1
+        # do carries as necessary
+        while current[i] > 1:
+            current[i] = 0
+            i -= 1
+            if (size + i) < 0:
+                return
+            current[i] += 1
+        yield current
+
+def combinations_no_repeats(elements: List, n) -> Generator[List, None, None]:
+    """ Yield every subset of elements of size n as a list """
+    length = len(elements)
+    for to_pick in binary_array_count(length):
+        if sum(to_pick) == n:
+            yield [ elements[i] for i in range(length) if to_pick[i] ]
+
+def permute_pick_n(elements: List, n) -> Generator[List, None, None]:
+    """ for each subset of elements of size n
+    yield each permutation of that subset
+    """
+    for combo in combinations_no_repeats(elements, n):
+        for perm in permute(combo):
+            yield perm
+
 def permute(input: List) -> Generator:
     """ Gererate all permutations of the elements in input
     using Heap's Algorithm
@@ -524,5 +558,6 @@ def get_palindromes(max_digits: int) -> Generator:
 
 if __name__ == '__main__':
     """starts here"""
-    for num in get_palindromes(4):
-        print(num)
+    # permute_pick_n
+    for perm in permute_pick_n(["a", "b", "c"], 3):
+        print(perm)
