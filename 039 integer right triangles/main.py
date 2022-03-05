@@ -3,7 +3,7 @@
 # p = 120.
 # {20,48,52}, {24,45,51}, {30,40,50}
 # For which value of p ≤ 1000, is the number of solutions maximised?
-# Result: 
+# Result: 840
 
 import math
 from typing import Set, List, Tuple, Dict
