@@ -41,6 +41,24 @@ class PrimeMachine:
         self.prime_list = prime_sieve(self.up_to, self.prime_list)
         self.prime_set.update(self.prime_list[i:])
 
+    def get_next(self) -> None:
+        current = self.up_to + 1
+        if not current % 2:
+            current += 1
+        while True:
+            is_prime = True
+            for p in self.prime_list:
+                if not current % p:
+                    is_prime = False
+                    break
+            if is_prime:
+                self.prime_list.append(current)
+                self.prime_set.add(current)
+                self.up_to = current
+                return
+            else:
+                current += 2
+
     def is_prime(self, n: int) -> bool:
         if n > self.up_to:
             self._get_more()
@@ -555,6 +573,19 @@ def get_palindromes(max_digits: int) -> Generator:
         s *= 10
         e *= 10
         q = []
+
+def is_pandigital(n: int) -> bool:
+    has_digits = [False] * 10
+    has_digits[0] = True
+    count = 1
+    while n:
+        count += 1
+        has_digits[n % 10] = True
+        n //= 10
+    for i in range(count):
+        if not has_digits[i]:
+            return False
+    return True
 
 if __name__ == '__main__':
     """starts here"""
