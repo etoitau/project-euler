@@ -92,17 +92,6 @@ def lcm(a: int, b: int) -> int:
     """Least common multiple"""
     return abs(a * b) // gcd(a, b)
 
-def triangles(n, known: List[int]=[ 0, 1 ]) -> List[int]:
-    if n <= len(known) - 1:
-        return known
-    count = len(known) - 1
-    value = known[count]
-    while count < n:
-        count += 1
-        value += count
-        known.append(value)
-    return known
-
 def prime_sieve(n: int, primes: List[int]=[]) -> List[int]:
     """Get list of all primes less than or equal to n using Sieve of Eratosthenes
     Can optionally provide already calculated primes. 
@@ -219,6 +208,30 @@ def factors_to_divisors(factors: Dict[int, int]) -> List[int]:
 
 def triangle_number(nth: int) -> int:
     return nth * (nth + 1) // 2
+
+def triangles(n, known: List[int]=[ 0, 1 ]) -> List[int]:
+    if n <= len(known) - 1:
+        return known
+    count = len(known) - 1
+    value = known[count]
+    while count < n:
+        count += 1
+        value += count
+        known.append(value)
+    return known
+
+def which_triangle_number(t: int) -> int:
+    n = -.5 + math.sqrt(0.25 + 2 * t)
+    if not n.is_integer():
+        raise ValueError
+    return int(n)
+
+def is_triangle_number(n: int) -> bool:
+    try:
+        which_triangle_number(n)
+        return True
+    except ValueError:
+        return False
 
 def radix_sort(to_sort: List[List[int]], as_number=True) -> None:
     """Sort to_sort in place
@@ -587,8 +600,18 @@ def is_pandigital(n: int) -> bool:
             return False
     return True
 
+def sum_character_numbers(input: str) -> int:
+    result = 0
+    for c in input:
+        result += character_number(c)
+    return result
+
+def character_number(c: str) -> int:
+    if len(c) != 1:
+        raise ValueError
+    return ord(c.capitalize()) - 64
+
 if __name__ == '__main__':
     """starts here"""
     # permute_pick_n
-    for perm in permute_pick_n(["a", "b", "c"], 3):
-        print(perm)
+    print(sum_character_numbers('Aa'))
