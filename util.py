@@ -45,9 +45,12 @@ class PrimeMachine:
         current = self.up_to + 1
         if not current % 2:
             current += 1
+        max_factor = math.sqrt(current)
         while True:
             is_prime = True
             for p in self.prime_list:
+                if p > max_factor:
+                    break
                 if not current % p:
                     is_prime = False
                     break
@@ -55,9 +58,10 @@ class PrimeMachine:
                 self.prime_list.append(current)
                 self.prime_set.add(current)
                 self.up_to = current
-                return
+                return current
             else:
                 current += 2
+                max_factor = math.sqrt(current)
 
     def is_prime(self, n: int) -> bool:
         if n > self.up_to:
