@@ -11,6 +11,7 @@
 # of two abundant numbers is less than this limit.
 # Find the sum of all the positive integers which cannot be written as the sum of two 
 # abundant numbers.
+# Result: 4179871
 
 import math
 from typing import Set, List, Tuple, Dict
