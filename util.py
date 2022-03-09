@@ -260,6 +260,29 @@ def is_pentagonal_number(n) -> bool:
     except ValueError:
         return False
 
+def hexagonal_number(n: int) -> int:
+    return n * (2 * n - 1)
+
+def which_hexagonal_number(h: int) -> int:
+    n = (1 + math.sqrt(1 + 8 * h)) / 4
+    if not n.is_integer():
+        raise ValueError
+    return int(n)
+
+def is_hexagonal_number(n) -> bool:
+    if not isinstance(n, (int, float)):
+        return False
+    if isinstance(n, float):
+        if n.is_integer():
+            n = int(n)
+        else:
+            return False
+    try:
+        which_hexagonal_number(n)
+        return True
+    except ValueError:
+        return False
+
 def radix_sort(to_sort: List[List[int]], as_number=True) -> None:
     """Sort to_sort in place
     if as_number is True, [4] will come before [1, 2] (i.e. 4 is less than 12)
@@ -640,15 +663,9 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    n = 1020
-    m = 2167
-    mp = pentagonal_number(m)
-    np = pentagonal_number(n)
-    diff = mp - np
-    sumd = mp + np
-    print(mp)
-    print(np)
-    print(diff)
-    print(is_pentagonal_number(diff))
-    print(sumd)
-    print(is_pentagonal_number(sumd))
+    for n in range(1, 6):
+        h = hexagonal_number(n)
+        print(h)
+        print(which_hexagonal_number(h))
+        print(is_hexagonal_number(h))
+    print(is_hexagonal_number(5))
