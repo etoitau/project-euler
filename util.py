@@ -69,6 +69,13 @@ class PrimeMachine:
             return self.is_prime(n)
         return n in self.prime_set
 
+    def prime_factors(self, n: int) -> Dict[int, int]:
+        pf = prime_factors(n, self.prime_set)
+        if 1 in pf:
+            del pf[1]
+        self.prime_set.update(pf.keys())
+        return pf
+
 
 class PrimeIterator:
     def __init__(self, prime_machine=None):
