@@ -237,6 +237,29 @@ def is_triangle_number(n: int) -> bool:
     except ValueError:
         return False
 
+def pentagonal_number(n: int) -> int:
+    return int(n * (3 * n - 1) / 2)
+
+def which_pentagonal_number(p: int) -> int:
+    n = (1 + math.sqrt(1 + 24 * p)) / 6
+    if not n.is_integer():
+        raise ValueError
+    return int(n)
+
+def is_pentagonal_number(n) -> bool:
+    if not isinstance(n, (int, float)):
+        return False
+    if isinstance(n, float):
+        if n.is_integer():
+            n = int(n)
+        else:
+            return False
+    try:
+        which_pentagonal_number(n)
+        return True
+    except ValueError:
+        return False
+
 def radix_sort(to_sort: List[List[int]], as_number=True) -> None:
     """Sort to_sort in place
     if as_number is True, [4] will come before [1, 2] (i.e. 4 is less than 12)
@@ -617,5 +640,15 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    # permute_pick_n
-    print(sum_character_numbers('Aa'))
+    n = 1020
+    m = 2167
+    mp = pentagonal_number(m)
+    np = pentagonal_number(n)
+    diff = mp - np
+    sumd = mp + np
+    print(mp)
+    print(np)
+    print(diff)
+    print(is_pentagonal_number(diff))
+    print(sumd)
+    print(is_pentagonal_number(sumd))
