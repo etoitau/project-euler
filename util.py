@@ -536,6 +536,25 @@ def heap_help(k: int, input: List) -> Generator:
             input[swap], input[k - 1] = input[k - 1], input[swap]
             yield from heap_help(k - 1, input)
 
+def is_permutation(a: List, b: List) -> bool:
+    if len(a) != len(b):
+        return False
+    a_freq: Dict = {}
+    for elem in a:
+        if elem in a_freq:
+            a_freq[elem] += 1
+        else:
+            a_freq[elem] = 1
+    for elem in b:
+        if elem not in a_freq:
+            return False
+        else:
+            a_freq[elem] -= 1
+    for elem in a_freq:
+        if a_freq[elem]:
+            return False
+    return True
+
 def int_array_to_int(ints: List[int]) -> int:
     """ Convert an array of ints represening digits of 
     a number(should be single-digit)
@@ -670,9 +689,6 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    for n in range(1, 6):
-        h = hexagonal_number(n)
-        print(h)
-        print(which_hexagonal_number(h))
-        print(is_hexagonal_number(h))
-    print(is_hexagonal_number(5))
+    a = [ 1, 3, 3 ]
+    b = [ 3, 1, 1 ]
+    print(is_permutation(a, b))
