@@ -504,11 +504,11 @@ def binary_array_count(size: int) -> Generator[List[int], None, None]:
             current[i] += 1
         yield current
 
-def combinations_no_repeats(elements: List, n) -> Generator[List, None, None]:
+def combinations_no_repeats(elements: List, n=0) -> Generator[List, None, None]:
     """ Yield every subset of elements of size n as a list """
     length = len(elements)
     for to_pick in binary_array_count(length):
-        if sum(to_pick) == n:
+        if not n or sum(to_pick) == n:
             yield [ elements[i] for i in range(length) if to_pick[i] ]
 
 def permute_pick_n(elements: List, n) -> Generator[List, None, None]:
