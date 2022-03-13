@@ -88,6 +88,19 @@ class PrimeIterator:
     def __next__(self):
         self.index += 1
         return self.machine.get(self.index)
+
+class Factorial:
+    def __init__(self, facts: List[int] = None) -> None:
+        self.facts = facts if facts else [ 1 ]
+    
+    def get(self, nth: int) -> int:
+        while len(self.facts) <= nth:
+            self.get_next()
+        return self.facts[nth]
+    
+    def get_next(self) -> int:
+        self.facts.append(self.facts[-1] * len(self.facts))
+        return self.facts[-1]
     
 def simplify_fraction(n: int, d: int) -> Tuple[int, int]:
     r = gcd(n, d)
@@ -453,6 +466,15 @@ def fibonacci_generator() -> Generator:
         yield a
         b += a
         yield b
+
+def combination_count(n: int, r: int, fact_gen: Factorial = None) -> int:
+    """ How many ways are there to pick r elements from n elements """
+    if fact_gen:
+        n_fact = fact_gen.get(n)
+        r_fact = fact_gen.get(r)
+        n_r_fact = fact_gen.get(n - r)
+        return n_fact // (r_fact * n_r_fact)
+    return math.factorial(n) // (math.factorial(r) * math.factorial(n - r))
 
 def combinations_in_order(elements: List, n: int) -> Generator:
     """ Return every combination of n elements from elements
