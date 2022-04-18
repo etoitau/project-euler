@@ -614,6 +614,14 @@ def to_array_base(n: int, r: int) -> List[int]:
     result.reverse()
     return result
 
+def digital_sum(n: int) -> int:
+    result = n % 10
+    n //= 10
+    while n > 0:
+        result += n % 10
+        n //= 10
+    return result
+
 def factorials(n: int) -> List[int]:
     """ Return an array where the ith element is i! """
     facts = [0] * (n + 1)
@@ -711,6 +719,4 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    a = [ 1, 3, 3 ]
-    b = [ 3, 1, 1 ]
-    print(is_permutation(a, b))
+    print(digital_sum(1234))
