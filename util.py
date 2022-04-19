@@ -76,7 +76,6 @@ class PrimeMachine:
         self.prime_set.update(pf.keys())
         return pf
 
-
 class PrimeIterator:
     def __init__(self, prime_machine=None):
         if prime_machine:
@@ -101,7 +100,71 @@ class Factorial:
     def get_next(self) -> int:
         self.facts.append(self.facts[-1] * len(self.facts))
         return self.facts[-1]
+
+class Frac:
+    """ Representing a fraction - a numerator 'n' and demoninator 'd' """
+
+    def __init__(self, n: int, d: int = 1) -> None:
+        self.n = n
+        self.d = d
+
+    def simplify(self) -> 'Frac':
+        self.n, self.d = simplify_fraction(self.n, self.d)
+        return self
     
+    def copy(self) -> 'Frac':
+        return Frac(self.n, self.d)
+    
+    def multiply(self, f: 'Frac', simplify: bool = False) -> 'Frac':
+        self.n *= f.n
+        self.d *= f.d
+        if simplify:
+            self.simplify()
+        return self
+
+    def divide(self, f: 'Frac', simplify: bool = False) -> 'Frac':
+        return self.multiply(Frac(f.d, f.n), simplify)
+    
+    def add(self, f: 'Frac', simplify: bool = False) -> 'Frac':
+        prev_d = self.d
+        self.d = lcm(self.d, f.d)
+        self.n = (self.d // prev_d) * self.n + (self.d // f.d) * f.n
+        if simplify:
+            self.simplify()
+        return self
+
+    def subtract(self, f: 'Frac', simplify: bool = False) -> 'Frac':
+        return self.add(Frac(-1).multiply(f), simplify)
+
+    def invert(self) -> 'Frac':
+        self.n, self.d = self.d, self.n
+        return self
+
+    def get_float(self) -> float:
+        return self.n / self.d
+
+    def __str__(self) -> str:
+        return "{}/{}".format(self.n, self.d)
+    
+    def __repr__(self) -> str:
+        return str(self)
+
+
+def frac_multiply(f1: Frac, f2: Frac, simplify: bool = False) -> Frac:
+    return f1.copy().multiply(f2, simplify)
+
+def frac_divide(f1: Frac, f2: Frac, simplify: bool = False) -> Frac:
+    return f1.copy().divide(f2, simplify)
+
+def frac_add(f1: Frac, f2: Frac, simplify: bool = False) -> Frac:
+    return f1.copy().add(f2, simplify)
+
+def frac_subtract(f1: Frac, f2: Frac, simplify: bool = False) -> Frac:
+    return f1.copy().subtract(f2, simplify)
+
+def frac_invert(f: Frac) -> Frac:
+    return Frac(f.d, f.n)
+
 def simplify_fraction(n: int, d: int) -> Tuple[int, int]:
     r = gcd(n, d)
     return n // r, d // r
@@ -622,6 +685,15 @@ def digital_sum(n: int) -> int:
         n //= 10
     return result
 
+def count_digits(n: int) -> int:
+    n = abs(n)
+    result = 1
+    n //= 10
+    while n != 0:
+        result += 1
+        n //= 10
+    return result
+
 def factorials(n: int) -> List[int]:
     """ Return an array where the ith element is i! """
     facts = [0] * (n + 1)
@@ -719,4 +791,5 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    print(digital_sum(1234))
+    f = Frac(1)
+    print(f.add(Frac(2)))
