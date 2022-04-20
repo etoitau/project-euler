@@ -21,19 +21,18 @@ class Node:
 
 class PrimeMachine:
     def __init__(self, initial_max=2048) -> None:
-        self.up_to = initial_max
-        self.prime_list = prime_sieve(initial_max)
+        self.up_to = max(10, min(initial_max, 500000))
+        self.prime_list = prime_sieve(self.up_to)
         self.prime_set = set(self.prime_list)
 
     def __iter__(self):
         return PrimeIterator(self)
 
     def get(self, nth: int) -> int:
-        try:
-            return self.prime_list[nth]
-        except IndexError:
-            self._get_more()
-            return self.get(nth)
+        if nth >= len(self.prime_list):
+            for i in range(1 + nth - len(self.prime_list)):
+                self.get_next()
+        return self.prime_list[nth]
     
     def _get_more(self) -> None:
         i = len(self.prime_list)
@@ -65,8 +64,7 @@ class PrimeMachine:
 
     def is_prime(self, n: int) -> bool:
         if n > self.up_to:
-            self._get_more()
-            return self.is_prime(n)
+            return self.miller_test(n)
         return n in self.prime_set
 
     def prime_factors(self, n: int) -> Dict[int, int]:
@@ -75,6 +73,50 @@ class PrimeMachine:
             del pf[1]
         self.prime_set.update(pf.keys())
         return pf
+
+    def miller_test(self, n: int) -> bool:
+        # https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Deterministic_variants
+        if n <= 1: 
+            return False
+        if n == 2:
+            return True
+        if not (n & 1):
+            return False
+        if n in self.prime_set:
+            return True
+        # n written as 2^r * d + 1
+        d = n - 1
+        r = 0
+        while not (d & 1):
+            r += 1
+            d >>= 1
+        for a in PrimeMachine.get_miller_a(n):
+            x = pow(a, d, n)
+            if x == 1 or x == (n - 1):
+                continue
+            maybe_prime = False
+            for i in range(r - 1):
+                x = pow(x, 2, n)
+                if x == (n - 1):
+                    maybe_prime = True
+                    break
+            if not maybe_prime:
+                return False
+        self.prime_set.add(n)
+        return True
+    
+    @staticmethod
+    def get_miller_a(n: int) -> List[int]:
+        # https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test#Deterministic_variants
+        if n < 2047:
+            return [2]
+        if n < 1373653:
+            return [2, 3]
+        if n < 9080191:
+            return [31, 73]
+        if n < 25326001:
+            return [2, 3, 5]
+        return [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37 ]
 
 class PrimeIterator:
     def __init__(self, prime_machine=None):
@@ -791,5 +833,14 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    f = Frac(1)
-    print(f.add(Frac(2)))
+    pm1 = PrimeMachine(0)
+    pm2 = PrimeMachine(0)
+    to_test = [ n for n in range(2, 100000)]
+    start = time.time()
+    for n in to_test:
+        pm1.is_prime(n)
+    print(time.time() - start) #  sec
+    start = time.time()
+    for n in to_test:
+        pm2.miller_test(n)
+    print(time.time() - start) #  sec
