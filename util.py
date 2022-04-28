@@ -3,10 +3,9 @@ from typing import Dict, Generator, Set, List, Tuple
 from functools import reduce
 import time
 
-class Node:
+class NodeBase:
     def __init__(self, value) -> None:
         self.value = value
-        self.children: List['Node'] = []
 
     def __str__(self) -> str:
         return str(self.value)
@@ -14,10 +13,32 @@ class Node:
     def __repr__(self) -> str:
         return repr(self.value)
 
+class Node(NodeBase):
+    def __init__(self, value) -> None:
+        super(Node, self).__init__(value)
+        self.children: List['Node'] = []
+
     def report(self) -> str:
         return (str(self.value) + "->[" 
             + ", ".join([ str(c.value) for c in self.children ]) 
             + "]")
+
+class ConnectedNode(NodeBase):
+    def __init__(self, value) -> None:
+        super(ConnectedNode, self).__init__(value)
+        self.connected: Set['ConnectedNode'] = set()
+
+    def report(self) -> str:
+        return (str(self.value) + "->[" 
+            + ", ".join([ str(c.value) for c in self.connected ]) 
+            + "]")
+
+def is_clique(nodes: List[ConnectedNode]):
+    for i in range(len(nodes) - 1):
+        for j in range(i + 1, len(nodes)):
+            if nodes[j] not in nodes[i].connected:
+                return False
+    return True
 
 class PrimeMachine:
     def __init__(self, initial_max=2048) -> None:
@@ -573,7 +594,9 @@ def fibonacci_generator() -> Generator:
         yield b
 
 def combination_count(n: int, r: int, fact_gen: Factorial = None) -> int:
-    """ How many ways are there to pick r elements from n elements """
+    """ How many ways are there to pick r elements 
+    from n elements with no repeats 
+    """
     if fact_gen:
         n_fact = fact_gen.get(n)
         r_fact = fact_gen.get(r)
@@ -631,12 +654,25 @@ def binary_array_count(size: int) -> Generator[List[int], None, None]:
             current[i] += 1
         yield current
 
-def combinations_no_repeats(elements: List, n=0) -> Generator[List, None, None]:
+def combinations_no_repeats(elements: List, n: int) -> Generator[List, None, None]:
     """ Yield every subset of elements of size n as a list """
     length = len(elements)
-    for to_pick in binary_array_count(length):
-        if not n or sum(to_pick) == n:
-            yield [ elements[i] for i in range(length) if to_pick[i] ]
+    indices = [ i for i in range(n) ]
+    def i_to_elem():
+        return [ elements[i] for i in indices ]
+    def reset(to: int):
+        for i in range(to):
+            indices[i] = i
+    yield i_to_elem()
+    while True:
+        c = 0
+        while c < n - 1 and indices[c] == (indices[c + 1] - 1):
+            c += 1
+        indices[c] += 1
+        if indices[c] == length:
+            return
+        reset(c)
+        yield i_to_elem()
 
 def permute_pick_n(elements: List, n) -> Generator[List, None, None]:
     """ for each subset of elements of size n
@@ -833,14 +869,7 @@ def character_number(c: str) -> int:
 
 if __name__ == '__main__':
     """starts here"""
-    pm1 = PrimeMachine(0)
-    pm2 = PrimeMachine(0)
-    to_test = [ n for n in range(2, 100000)]
     start = time.time()
-    for n in to_test:
-        pm1.is_prime(n)
-    print(time.time() - start) #  sec
-    start = time.time()
-    for n in to_test:
-        pm2.miller_test(n)
+    for c in combinations_no_repeats([0, 1, 2, 3, 4], 3):
+        print(c)
     print(time.time() - start) #  sec
