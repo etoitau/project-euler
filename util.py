@@ -356,6 +356,34 @@ def factors_to_divisors(factors: Dict[int, int]) -> List[int]:
         # get this divisor
         ret.append(one_prod())
 
+def nth_ngonal(nth: int, ngon: int):
+    return [
+        lambda n: 0,
+        lambda n: 1,
+        lambda n: n,
+        triangle_number,
+        lambda n: n * n,
+        pentagonal_number,
+        hexagonal_number,
+        heptagonal_number,
+        octagonal_number
+    ][ngon](nth)
+
+def ngonal_inverse(num: int, ngon: int) -> float:
+    def _raise(ex):
+        raise ex
+    return [
+        lambda n: _raise(ValueError),
+        lambda n: _raise(ValueError),
+        lambda n: n,
+        triangle_inverse,
+        lambda n: math.sqrt(n),
+        pentagonal_inverse,
+        hexagonal_inverse,
+        heptagonal_inverse,
+        octagonal_inverse
+    ][ngon](num)
+
 def triangle_number(nth: int) -> int:
     return nth * (nth + 1) // 2
 
@@ -370,8 +398,11 @@ def triangles(n, known: List[int]=[ 0, 1 ]) -> List[int]:
         known.append(value)
     return known
 
+def triangle_inverse(t: int) -> float:
+    return -.5 + math.sqrt(0.25 + 2 * t)
+
 def which_triangle_number(t: int) -> int:
-    n = -.5 + math.sqrt(0.25 + 2 * t)
+    n = triangle_inverse(t)
     if not n.is_integer():
         raise ValueError
     return int(n)
@@ -386,8 +417,11 @@ def is_triangle_number(n: int) -> bool:
 def pentagonal_number(n: int) -> int:
     return int(n * (3 * n - 1) / 2)
 
+def pentagonal_inverse(p: int) -> float:
+    return (1 + math.sqrt(1 + 24 * p)) / 6
+
 def which_pentagonal_number(p: int) -> int:
-    n = (1 + math.sqrt(1 + 24 * p)) / 6
+    n = pentagonal_inverse(p)
     if not n.is_integer():
         raise ValueError
     return int(n)
@@ -409,8 +443,11 @@ def is_pentagonal_number(n) -> bool:
 def hexagonal_number(n: int) -> int:
     return n * (2 * n - 1)
 
+def hexagonal_inverse(h: int) -> float:
+    return (1 + math.sqrt(1 + 8 * h)) / 4
+
 def which_hexagonal_number(h: int) -> int:
-    n = (1 + math.sqrt(1 + 8 * h)) / 4
+    n = hexagonal_inverse(h)
     if not n.is_integer():
         raise ValueError
     return int(n)
@@ -428,6 +465,18 @@ def is_hexagonal_number(n) -> bool:
         return True
     except ValueError:
         return False
+
+def heptagonal_number(nth: int) -> int:
+    return int(nth * (5 * nth - 3) / 2)
+
+def heptagonal_inverse(h: int) -> float:
+    return 0.3 + math.sqrt(2.25 + 10 * h) / 5
+
+def octagonal_number(nth: int) -> int:
+    return nth * (3 * nth - 2)
+
+def octagonal_inverse(o: int) -> float:
+    return (2 + math.sqrt(4 + 12 * o)) / 6
 
 def radix_sort(to_sort: List[List[int]], as_number=True) -> None:
     """Sort to_sort in place
@@ -870,6 +919,10 @@ def character_number(c: str) -> int:
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    for c in combinations_no_repeats([0, 1, 2, 3, 4], 3):
-        print(c)
+    for n in range(2, 9):
+        num = nth_ngonal(3, n)
+        inv = ngonal_inverse(num, n)
+        print(n)
+        print(num)
+        print(inv)
     print(time.time() - start) #  sec
