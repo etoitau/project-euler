@@ -1,5 +1,5 @@
 import math
-from typing import Dict, Generator, Set, List, Tuple
+from typing import Dict, Generator, Iterable, Set, List, Tuple
 from functools import reduce
 import time
 
@@ -916,13 +916,82 @@ def character_number(c: str) -> int:
         raise ValueError
     return ord(c.capitalize()) - 64
 
+def square_root_continued_fraction_notation(n: int) -> List[int]:
+    """ Return the continued fraction representation 
+    of the square root of n.
+    Note the second through last elements of the returned list 
+    should be considered to repeat infinitely.
+    """
+    # set up
+    a0 = math.floor(math.sqrt(n))
+    m = a0
+    d = 1
+    result: List[int] = [ a0 ]
+
+    # first
+    d = n - (m * m) // d
+    if not d:
+        # n is perfect square, skip
+        return result
+
+    a = (a0 + m) // d
+    result.append(a)
+    m = a * d - m
+    cycle_start = (d, a, m)
+
+    while True:
+        d = (n - (m * m)) // d
+        a = (a0 + m) // d
+        m = a * d - m
+        if (d, a, m) == cycle_start:
+            break
+        result.append(a)
+    return result
+
+def continued_fraction_notation_to_generator(notation: List[int]) \
+    -> Generator[int, None, None]:
+    """ For a continued fraction representation the second through last
+    terms should be considered to repeat infinitely.
+    This returns an infinite generator given that finite representation.
+    """
+    yield notation[0]
+    if len(notation) == 1:
+        return
+    while True:
+        for i in range(1, len(notation)):
+            yield notation[i]
+
+def square_root_continued_fraction_generator(n: int) \
+    -> Generator[int, None, None]:
+    return continued_fraction_notation_to_generator(
+        square_root_continued_fraction_notation(n))
+
+def convergent_generator(notation: Generator[int, None, None]) \
+    -> Generator[Frac, None, None]:
+    """ Yield successive convergents given the continued 
+    fraction representation
+    See the below link for the recursive relation used here
+    https://en.wikipedia.org/wiki/Continued_fraction#Infinite_continued_fractions_and_convergents
+    """
+    try:
+        f_2 = Frac(1, 0)
+        f_1 = Frac(next(notation), 1)
+        yield f_1
+        while True:
+            a = next(notation)
+            f = Frac(a * f_1.n + f_2.n, a * f_1.d + f_2.d)
+            yield f.simplify()
+            f_2 = f_1
+            f_1 = f
+    except StopIteration:
+        return
+
+def square_root_convergent_generator(n: int) -> Generator[Frac, None, None]:
+    return convergent_generator(square_root_continued_fraction_generator(n))
+
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    for n in range(2, 9):
-        num = nth_ngonal(3, n)
-        inv = ngonal_inverse(num, n)
-        print(n)
-        print(num)
-        print(inv)
+    for f in convergent_generator(iter([1, 2, 2, 2, 2])):
+        print(f)
     print(time.time() - start) #  sec
