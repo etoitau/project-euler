@@ -250,6 +250,8 @@ def prime_sieve(n: int, primes: List[int]=[]) -> List[int]:
     sieve_start = 2
     is_prime = [True for i in range(n + 1)]
     if len(primes):
+        if primes[-1] >= n:
+            return primes
         sieve_start = primes[-1] + 1
         for i in range(primes[-1]):
             is_prime[i] = False
@@ -285,7 +287,6 @@ def nth_prime(n) -> int:
         upper_bound = round(upper_bound * 1.5)
         primes = prime_sieve(upper_bound, primes)
     return primes[n - 1]
-
 
 def prime_factors(n: int, known_primes: Set[int]=None) -> Dict[int, int]:
     """Get the prime factorization of the input. The result takes the form 
@@ -355,6 +356,18 @@ def factors_to_divisors(factors: Dict[int, int]) -> List[int]:
             current_exp[curr_digit] += 1
         # get this divisor
         ret.append(one_prod())
+
+def totient(n: int, pm: PrimeMachine=None) -> int:
+    """ How many integers between 0 and n are relatively prime to n? """
+    # https://en.wikipedia.org/wiki/Euler's_totient_function#Computing_Euler's_totient_function
+    if not pm:
+        pm = PrimeMachine(math.ceil(math.sqrt(n)))
+    factors = pm.prime_factors(n)
+    result = n
+    for prime in factors:
+        # multiplying by (1 - 1/p) is equivalent to subtracting self / p
+        result -= result // prime
+    return result
 
 def nth_ngonal(nth: int, ngon: int):
     return [
