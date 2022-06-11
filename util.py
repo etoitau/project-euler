@@ -1,5 +1,5 @@
 import math
-from typing import Dict, Generator, Iterable, Set, List, Tuple
+from typing import Callable, Dict, Generator, Iterable, Set, List, Tuple
 from functools import reduce
 import time
 
@@ -202,6 +202,10 @@ class Frac:
     def invert(self) -> 'Frac':
         self.n, self.d = self.d, self.n
         return self
+
+    def compare(self, other: 'Frac') -> int:
+        """ Return int < 0 if self < other, int > 0 if self > other """
+        return frac_subtract(self, other).n
 
     def get_float(self) -> float:
         return self.n / self.d
@@ -588,6 +592,26 @@ def binary_search_fuzzy(target, search_in) -> int:
     """Find index of target in search_in, or index where it would be."""
     i = binary_search(target, search_in)
     return -(i + 1) if i < 0 else i
+
+def binary_search_less_close(
+    target, min: int, max: int, func: Callable[[int], float]
+    ) -> int:
+    """Find the int in the specified range which, when passed 
+    through the provided function, gives a result closest to 
+    but less than target
+    """
+    low = min
+    high = max + 1
+    while low < high:
+        mid = (low + high) // 2
+        value = func(mid)
+        if value > target:
+            high = mid
+        elif value < target:
+            low = mid + 1
+        else:
+            return mid - 1
+    return low if value < target else low - 1
 
 def lexilogical_permutation_generator(characters: str) -> Generator:
     """Given a string of unique characters, returns a generator which will yield
@@ -1005,6 +1029,5 @@ def square_root_convergent_generator(n: int) -> Generator[Frac, None, None]:
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    for f in convergent_generator(iter([1, 2, 2, 2, 2])):
-        print(f)
-    print(time.time() - start) #  sec
+    
+    print(Frac(1, 5).compare(Frac(5, 11))) #  sec
