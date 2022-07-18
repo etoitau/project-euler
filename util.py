@@ -1026,8 +1026,50 @@ def convergent_generator(notation: Generator[int, None, None]) \
 def square_root_convergent_generator(n: int) -> Generator[Frac, None, None]:
     return convergent_generator(square_root_continued_fraction_generator(n))
 
+def babyl_sqrt(n: int) -> int:
+    """ Return the integer approximation of the square root of n
+    If the result is exact, result is positive, else negative
+    """
+    if n == 0 or n == 1:
+        return True
+    guess = n >> 1
+    seen: Set[int] = set([guess])
+    while guess * guess != n:
+        guess = (guess + n // guess) >> 1
+        if guess in seen:
+            return -1 * guess
+        seen.add(guess)
+    return guess
+
+def primitive_pythagorean_triplets(m_limit: int = 0) \
+    -> Generator[Tuple[int, int, int], None, None]:
+    """ Generates primitive pythagorean triplets
+    These are tuples of integers a, b, c such that a^2 + b^2 = c^2
+    and a, b, and c have no common factor.
+    Optionally, provide a value of m which generating values should 
+    remain below.
+    https://en.wikipedia.org/wiki/Pythagorean_triple#Generating_a_triple
+    """
+    m = 2
+    m_sq = m * m
+    while True:
+        for n in range(1, m):
+            if (m + n) & 1 and gcd(m, n) == 1:
+                n_sq = n * n
+                a = m_sq - n_sq
+                b = 2 * m * n
+                yield (min(a, b), max(a, b), m_sq + n_sq)
+        m += 1
+        if m_limit and m == m_limit:
+            return
+        m_sq = m * m
+
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    
-    print(Frac(1, 5).compare(Frac(5, 11))) #  sec
+    pys = primitive_pythagorean_triplets()
+    for i in range(10):
+        py = next(pys)
+        print(py)
+        print(sum(py))
+    print(time.time() - start)
