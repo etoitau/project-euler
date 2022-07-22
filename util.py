@@ -216,6 +216,36 @@ class Frac:
     def __repr__(self) -> str:
         return str(self)
 
+class GeneralizedPentagonalMachine:
+    """ Used for getting generalized pentagonal numbers
+    p(n) = n * (3 * n - 1) / 2
+    where n goes like 0, 1, -1, 2, -2, 3, -3...
+    """
+    # My approach is to treat it like two series zipped together:
+    # The normal positive pentagonals and the negative pentagonals
+    # For each, the difference between successive elements increases
+    # by three with each term 
+    def __init__(self):
+        self.pos = False
+        self.pos_diff = 4
+        self.neg_diff = 2
+        self.pents = [0, 1]
+
+    def get(self, nth: int) -> int:
+        while len(self.pents) <= nth:
+            self.get_next()
+        return self.pents[nth]
+
+    def get_next(self) -> int:
+        if self.pos:
+            p = self.pents[-2] + self.pos_diff
+            self.pos_diff += 3
+        else:
+            p = self.pents[-2] + self.neg_diff
+            self.neg_diff += 3
+        self.pos = not self.pos
+        self.pents.append(p)
+        return p
 
 def frac_multiply(f1: Frac, f2: Frac, simplify: bool = False) -> Frac:
     return f1.copy().multiply(f2, simplify)
@@ -1067,9 +1097,7 @@ def primitive_pythagorean_triplets(m_limit: int = 0) \
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    pys = primitive_pythagorean_triplets()
+    pent = GeneralizedPentagonalMachine()
     for i in range(10):
-        py = next(pys)
-        print(py)
-        print(sum(py))
+        print(pent.get(i))
     print(time.time() - start)
