@@ -1214,8 +1214,8 @@ def dijkstra_min_path_length(nodes: Set[Node], start: Node, end: Node):
     for node in nodes:
         # Set all to practical infinity, so first check will store a value
         shortest_path_to[node] = max_val
-    # Length from start to start is 0
-    shortest_path_to[start] = 0
+    # Length from start to start is its value
+    shortest_path_to[start] = start.value
     # set unvisited_nodes as a min-heap by shortest path
     unvisited = Heap(lambda a, b: shortest_path_to[a] - shortest_path_to[b], nodes)
     while unvisited.get_root():
