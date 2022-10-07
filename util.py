@@ -1,7 +1,10 @@
 import math
-from typing import Callable, Dict, Generator, Iterable, Set, List, Tuple
+import sys
+from typing import Callable, Dict, Generator, Iterable, Set, List, Tuple, TypeVar
 from functools import reduce
 import time
+
+T = TypeVar("T")
 
 class NodeBase:
     def __init__(self, value) -> None:
@@ -39,6 +42,111 @@ def is_clique(nodes: List[ConnectedNode]):
             if nodes[j] not in nodes[i].connected:
                 return False
     return True
+
+
+class Heap:
+    ''' A min or max heap, depending on the comparison function provided.
+    A typical function where if a < b cmp(a, b) < 0 will give a min heap.
+    '''
+    def __init__(self, cmp: Callable[[T, T], float], elements: Iterable[T]):
+        self.cmp = cmp
+        self.elements = list(elements) if elements else []
+        self.element_to_index: Dict[T, int] = dict()
+        self.heapify()
+
+    def priority(self, a: int, b: int) -> bool:
+        # should a be above b in the heap?
+        return self.cmp(self.elements[a], self.elements[b]) < 0
+
+    def heapify(self):
+        # start at bottom of tree and work up, sifting 
+        # everything down, except leaves can be skipped
+        for i in range((len(self.elements) - 2) // 2, -1, -1):
+            self.sift_down(i)
+        for i in range(len(self.elements)):
+            self.element_to_index[self.elements[i]] = i
+
+    def index_of(self, element: T) -> int:
+        return self.element_to_index[element]
+
+    def left(self, i: int) -> int:
+        return 2 * i + 1
+
+    def right(self, i: int) -> int:
+        return 2 * i + 2
+
+    def parent(self, i: int) -> int:
+        return (i - 1) // 2
+
+    def swap(self, i: int, j: int) -> None:
+        self.elements[i], self.elements[j] = self.elements[j], self.elements[i]
+        self.element_to_index[self.elements[i]] = i
+        self.element_to_index[self.elements[j]] = j
+
+    def sift_down(self, i):
+        # swap the element at i down through data until it's a 
+        # leaf or smaller than both below
+        max_index = i
+        l = self.left(i)
+        r = l + 1
+        if l < len(self.elements) and self.priority(l, max_index):
+            max_index = l
+        if r < len(self.elements) and self.priority(r, max_index):
+            max_index = r
+        if i != max_index:
+            self.swap(max_index, i)
+            self.sift_down(max_index)
+
+    def sift_up(self, i):
+        if not i:
+            return
+        parent = self.parent(i)
+        if self.priority(i, parent):
+            self.swap(i, parent)
+            self.sift_up(parent)
+
+    def add(self, element: T):
+        self.elements.append(element)
+        self.element_to_index[element] = len(self.elements) - 1
+        self.sift_up(len(self.elements) - 1)
+
+    def get_root(self) -> T:
+        # Get but don't remove the element at the root
+        if not len(self.elements):
+            return None
+        return self.elements[0]
+
+    def pop_root(self) -> T:
+        # Get and remove the element at the root
+        ret = self.get_root()
+        if not ret:
+            return None
+        self.element_to_index.pop(ret)
+        if len(self.elements) == 1:
+            # that was last element
+            self.elements.pop()
+            return ret
+        # move the last element to the root, then sift down
+        last_elem = self.elements[-1]
+        self.elements[0] = last_elem
+        self.element_to_index[last_elem] = 0
+        self.elements.pop() # shorten the array by 1
+        self.sift_down(0)
+        return ret
+
+    def update(self, element: T):
+        # Call to let the heap know the value of element has changed
+        if element not in self.element_to_index:
+            return
+        i = self.element_to_index[element]
+        p = self.parent(i)
+        l = self.left(i)
+        r = self.right(i)
+        if i and self.priority(i, p):
+            self.sift_up(i)
+        elif (l < len(self.elements) and self.priority(l, i)) \
+                or (r < len(self.elements)) and self.priority(r, i):
+            self.sift_down(i)
 
 class PrimeMachine:
     def __init__(self, initial_max=2048) -> None:
@@ -1093,6 +1201,35 @@ def primitive_pythagorean_triplets(m_limit: int = 0) \
         if m_limit and m == m_limit:
             return
         m_sq = m * m
+
+def dijkstra_min_path_length(nodes: Set[Node], start: Node, end: Node):
+    ''' Use Dijkstra's algorithm to find the lowest cost for traversing the
+    graph of nodes from start to end, where the cost for passing though
+    each node is its value. (Note one often assigns cost to graph edges, 
+    that is not the case, here)
+    '''
+    # Store shortest path from start to each node, so far
+    shortest_path_to = dict()
+    max_val = sys.maxsize
+    for node in nodes:
+        # Set all to practical infinity, so first check will store a value
+        shortest_path_to[node] = max_val
+    # Length from start to start is 0
+    shortest_path_to[start] = 0
+    # set unvisited_nodes as a min-heap by shortest path
+    unvisited = Heap(lambda a, b: shortest_path_to[a] - shortest_path_to[b], nodes)
+    while unvisited.get_root():
+        # Get the node closest to start
+        cur_node = unvisited.pop_root()
+        path_val = shortest_path_to[cur_node]
+        # See if we can update distance to each of it's children
+        for child in cur_node.children:
+            new_value = path_val + child.value
+            if new_value < shortest_path_to[child]:
+                shortest_path_to[child] = new_value
+                unvisited.update(child)
+    # Once we've visited all nodes, the value at end should be correct
+    return shortest_path_to[end]
 
 if __name__ == '__main__':
     """starts here"""
