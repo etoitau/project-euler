@@ -845,7 +845,7 @@ def combinations_in_order(elements: List, n: int) -> Generator:
         i = 0
         current_i[i] += 1
         # Do carries as necessary
-        while current_i[i] == n_elements and i < n_elements:
+        while current_i[i] == n_elements:
             i += 1
             try:
                 current_i[i] += 1
@@ -1234,7 +1234,6 @@ def dijkstra_min_path_length(nodes: Set[Node], start: Node, end: Node):
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    pent = GeneralizedPentagonalMachine()
-    for i in range(10):
-        print(pent.get(i))
+    for c in combinations_in_order([i for i in range(10)], 2):
+        print(c)
     print(time.time() - start)
