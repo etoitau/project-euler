@@ -910,6 +910,7 @@ def permute(input: List) -> Generator:
     """ Gererate all permutations of the elements in input
     using Heap's Algorithm
     Note these will not be in lexiographic order
+    Note this permutes the input in-place
     """
     return heap_help(len(input), input)
 
@@ -1234,6 +1235,8 @@ def dijkstra_min_path_length(nodes: Set[Node], start: Node, end: Node):
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
-    for c in combinations_in_order([i for i in range(10)], 2):
-        print(c)
+
+    # for c in permute_pick_n([0, 1, 2, 3], 3):
+    #     print(c)
+    print(len(list(permute_pick_n([0, 1, 2, 3], 3))))
     print(time.time() - start)
