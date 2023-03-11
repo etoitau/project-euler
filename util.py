@@ -1232,6 +1232,16 @@ def dijkstra_min_path_length(nodes: Set[Node], start: Node, end: Node):
     # Once we've visited all nodes, the value at end should be correct
     return shortest_path_to[end]
 
+def quadratic_formula(a: float, b: float, c: float) -> Tuple[float, float]:
+    disc = b * b - (4 * a * c)
+    if disc < 0:
+        raise ValueError
+    sqrt_disc = math.sqrt(disc)
+    return (
+        (-1 * b + sqrt_disc) / (2 * a),
+        (-1 * b - sqrt_disc) / (2 * a),
+            )
+
 if __name__ == '__main__':
     """starts here"""
     start = time.time()
